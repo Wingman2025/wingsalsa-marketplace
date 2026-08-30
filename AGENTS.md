@@ -2,7 +2,7 @@
 
 ## Product purpose
 
-Wingsalsa MarketPlace helps visitors in Tarifa find a sports class and send a clear reservation request without creating an account. Jorge manages schools, activities, and requests from one private Django Admin.
+Wingsalsa MarketPlace helps visitors in Tarifa find a sports class and send a clear reservation request without creating an account. Jorge manages schools, activities, and requests from a private operational backoffice, with Django Admin reserved for technical administration.
 
 ## Primary journeys
 

@@ -1,0 +1,59 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}Reservas{% endblock %}
+
+{% block content %}
+<header class="manage-page-header">
+    <div>
+        <p class="manage-kicker">Operativa</p>
+        <h1>Reservas</h1>
+        <p>{{ booking_count }} solicitud{{ booking_count|pluralize:"es" }} en esta vista.</p>
+    </div>
+    {% if perms.marketplace.add_bookingrequest %}<a class="manage-button manage-button--primary" href="{% url 'marketplace:manage_booking_create' %}"><i data-lucide="user-plus"></i>Nueva reserva</a>{% endif %}
+</header>
+
+<nav class="manage-tabs" aria-label="Filtrar por estado">
+    <a class="{% if not selected_status %}is-active{% endif %}" href="{% url 'marketplace:manage_booking_list' %}">Todas <span>{{ all_count }}</span></a>
+    {% for option in status_options %}
+        <a class="{% if selected_status == option.value %}is-active{% endif %}" href="?status={{ option.value }}">{{ option.label }} <span>{{ option.count }}</span></a>
+    {% endfor %}
+</nav>
+
+<form class="manage-filterbar" method="get">
+    {% if selected_status %}<input type="hidden" name="status" value="{{ selected_status }}">{% endif %}
+    <div class="manage-field manage-field--search"><label for="filter-q">Buscar</label><input id="filter-q" type="search" name="q" value="{{ query }}" placeholder="Nombre, contacto o actividad"></div>
+    <div class="manage-field"><label for="filter-school">Escuela</label><select id="filter-school" name="school"><option value="">Todas</option>{% for school in schools %}<option value="{{ school.pk }}"{% if selected_school == school.pk|stringformat:'s' %} selected{% endif %}>{{ school.name }}</option>{% endfor %}</select></div>
+    <div class="manage-field"><label for="filter-activity">Actividad</label><select id="filter-activity" name="activity"><option value="">Todas</option>{% for activity in activities %}<option value="{{ activity.pk }}"{% if selected_activity == activity.pk|stringformat:'s' %} selected{% endif %}>{{ activity.title }}</option>{% endfor %}</select></div>
+    <div class="manage-field"><label for="filter-date">Desde</label><input id="filter-date" type="date" name="date_from" value="{{ date_from }}"></div>
+    <button class="manage-button manage-button--secondary" type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
+</form>
+
+{% if page_obj %}
+    <div class="manage-table-wrap">
+        <table class="manage-table manage-table--bookings">
+            <thead><tr><th>Estudiante</th><th>Actividad</th><th>Fecha</th><th>Personas</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+                {% for booking in page_obj %}
+                    <tr>
+                        <td data-label="Estudiante"><strong>{{ booking.full_name }}</strong><small>{{ booking.contact }}</small></td>
+                        <td data-label="Actividad">{{ booking.activity.title }}<small>{{ booking.activity.school.name }}</small></td>
+                        <td data-label="Fecha">{{ booking.preferred_date|date:"d M Y" }}</td>
+                        <td data-label="Personas">{{ booking.participants }}</td>
+                        <td data-label="Estado"><span class="manage-status manage-status--{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                        <td><a class="manage-row-action" href="{% url 'marketplace:manage_booking_detail' booking.public_id %}" aria-label="Abrir reserva de {{ booking.full_name }}">Abrir <i data-lucide="arrow-right"></i></a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="manage-pagination" aria-label="Paginación">
+            {% if page_obj.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="manage-empty"><strong>No hay reservas con estos filtros.</strong><p>Prueba a limpiar la búsqueda o seleccionar otro estado.</p></div>
+{% endif %}
+{% endblock %}

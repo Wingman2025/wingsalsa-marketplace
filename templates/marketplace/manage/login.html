@@ -1,0 +1,45 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Acceso de gestión · Wingsalsa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/management.css' %}">
+</head>
+<body class="manage-login-body">
+    <main class="manage-login-shell">
+        <section class="manage-login-intro">
+            <a class="manage-brand manage-brand--light" href="{% url 'marketplace:home' %}"><span>W</span><strong>Wingsalsa</strong></a>
+            <div>
+                <p class="manage-kicker">Panel privado</p>
+                <h1>La operativa diaria, en un solo lugar.</h1>
+                <p>Reservas, escuelas y actividades con una vista clara y directa.</p>
+            </div>
+        </section>
+        <section class="manage-login-form-wrap">
+            <form method="post" class="manage-login-form">
+                {% csrf_token %}
+                <p class="manage-kicker">Bienvenido</p>
+                <h2>Accede a gestión</h2>
+                {% if form.non_field_errors %}<div class="manage-alert manage-alert--error">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>{% endif %}
+                <div class="manage-field">
+                    <label for="{{ form.username.id_for_label }}">Usuario</label>
+                    {{ form.username }}
+                </div>
+                <div class="manage-field">
+                    <label for="{{ form.password.id_for_label }}">Contraseña</label>
+                    {{ form.password }}
+                </div>
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                <button class="manage-button manage-button--primary" type="submit">Entrar</button>
+                <a class="manage-back-link" href="{% url 'marketplace:home' %}">Volver a la web</a>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

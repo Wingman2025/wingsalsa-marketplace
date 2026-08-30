@@ -150,3 +150,224 @@ class MarketplaceTests(TestCase):
         response = self.client.get(reverse("admin:marketplace_bookingrequest_changelist"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Solicitudes de reserva")
+
+
+class ManagementAccessTests(TestCase):
+    def test_management_dashboard_requires_staff_login(self):
+        dashboard_url = reverse("marketplace:manage_dashboard")
+
+        anonymous_response = self.client.get(dashboard_url)
+        self.assertRedirects(
+            anonymous_response,
+            f'{reverse("marketplace:manage_login")}?next={dashboard_url}',
+        )
+
+        user = get_user_model().objects.create_superuser(
+            username="jorge",
+            email="jorge@example.com",
+            password="safe-test-password",
+        )
+        self.client.force_login(user)
+
+        staff_response = self.client.get(dashboard_url)
+        self.assertEqual(staff_response.status_code, 200)
+        self.assertContains(staff_response, "Resumen de hoy")
+
+    def test_management_login_rejects_non_staff_users(self):
+        get_user_model().objects.create_user(
+            username="visitor",
+            email="visitor@example.com",
+            password="safe-test-password",
+        )
+
+        response = self.client.post(
+            reverse("marketplace:manage_login"),
+            {"username": "visitor", "password": "safe-test-password"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Esta cuenta no tiene acceso al panel de gestión.")
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_staff_without_booking_permission_cannot_see_student_data(self):
+        school = School.objects.create(name="WingSalsa", slug="wingsalsa")
+        activity = Activity.objects.create(
+            school=school,
+            title="Iniciación al wingfoil",
+            slug="iniciacion-wingfoil",
+            sport=Activity.Sport.WINGFOIL,
+            summary="Primera sesión.",
+            description="Descripción.",
+            price=90,
+        )
+        BookingRequest.objects.create(
+            activity=activity,
+            full_name="Nombre Privado",
+            contact="privado@example.com",
+            preferred_date=date.today() + timedelta(days=3),
+        )
+        staff_user = get_user_model().objects.create_user(
+            username="limited-staff",
+            password="safe-test-password",
+            is_staff=True,
+        )
+        self.client.force_login(staff_user)
+
+        dashboard_response = self.client.get(reverse("marketplace:manage_dashboard"))
+        booking_response = self.client.get(reverse("marketplace:manage_booking_list"))
+
+        self.assertEqual(dashboard_response.status_code, 200)
+        self.assertNotContains(dashboard_response, "Nombre Privado")
+        self.assertNotContains(dashboard_response, "privado@example.com")
+        self.assertEqual(booking_response.status_code, 403)
+
+
+class ManagementWorkflowTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_superuser(
+            username="jorge",
+            email="jorge@example.com",
+            password="safe-test-password",
+        )
+        cls.school = School.objects.create(name="WingSalsa", slug="wingsalsa")
+        cls.activity = Activity.objects.create(
+            school=cls.school,
+            title="Iniciación al wingfoil",
+            slug="iniciacion-wingfoil",
+            sport=Activity.Sport.WINGFOIL,
+            summary="Primera sesión con material incluido.",
+            description="Aprende las bases del wingfoil.",
+            price=90,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.user)
+
+    def test_staff_can_filter_and_update_booking_status(self):
+        booking = BookingRequest.objects.create(
+            activity=self.activity,
+            full_name="Ana Pérez",
+            contact="ana@example.com",
+            preferred_date=date.today() + timedelta(days=3),
+        )
+        BookingRequest.objects.create(
+            activity=self.activity,
+            full_name="Luis García",
+            contact="luis@example.com",
+            preferred_date=date.today() + timedelta(days=5),
+            status=BookingRequest.Status.CANCELLED,
+        )
+
+        list_response = self.client.get(
+            reverse("marketplace:manage_booking_list"),
+            {"status": BookingRequest.Status.NEW, "q": "Ana"},
+        )
+        self.assertContains(list_response, "Ana Pérez")
+        self.assertNotContains(list_response, "Luis García")
+
+        update_response = self.client.post(
+            reverse(
+                "marketplace:manage_booking_status",
+                kwargs={"public_id": booking.public_id},
+            ),
+            {"status": BookingRequest.Status.CONFIRMED},
+        )
+        self.assertRedirects(
+            update_response,
+            reverse(
+                "marketplace:manage_booking_detail",
+                kwargs={"public_id": booking.public_id},
+            ),
+        )
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, BookingRequest.Status.CONFIRMED)
+
+    def test_staff_can_register_student_manually(self):
+        response = self.client.post(
+            reverse("marketplace:manage_booking_create"),
+            {
+                "activity": self.activity.pk,
+                "full_name": "Marta Ruiz",
+                "contact": "+34 600 111 222",
+                "preferred_date": date.today() + timedelta(days=7),
+                "participants": 1,
+                "level": "Principiante",
+                "notes": "Alta realizada por teléfono.",
+                "status": BookingRequest.Status.CONFIRMED,
+            },
+        )
+        booking = BookingRequest.objects.get(full_name="Marta Ruiz")
+        self.assertRedirects(
+            response,
+            reverse(
+                "marketplace:manage_booking_detail",
+                kwargs={"public_id": booking.public_id},
+            ),
+        )
+        self.assertEqual(booking.status, BookingRequest.Status.CONFIRMED)
+
+    def test_staff_can_create_school_and_activity_with_generated_slugs(self):
+        school_response = self.client.post(
+            reverse("marketplace:manage_school_create"),
+            {
+                "name": "Océano Sur",
+                "description": "Escuela junto al mar.",
+                "city": "Tarifa",
+                "is_active": True,
+            },
+        )
+        new_school = School.objects.get(name="Océano Sur")
+        self.assertRedirects(school_response, reverse("marketplace:manage_school_list"))
+        self.assertEqual(new_school.slug, "oceano-sur")
+
+        activity_response = self.client.post(
+            reverse("marketplace:manage_activity_create"),
+            {
+                "school": new_school.pk,
+                "title": "Kitesurf puesta a punto",
+                "sport": Activity.Sport.KITESURF,
+                "summary": "Recupera sensaciones con una sesión práctica.",
+                "description": "Sesión adaptada a tu nivel.",
+                "price": "70.00",
+                "duration_minutes": 90,
+                "level": "Intermedio",
+                "equipment_included": False,
+                "equipment_details": "Consulta disponibilidad.",
+                "location": "Los Lances",
+                "is_featured": False,
+                "is_active": True,
+            },
+        )
+        activity = Activity.objects.get(title="Kitesurf puesta a punto")
+        self.assertRedirects(
+            activity_response,
+            reverse("marketplace:manage_activity_list"),
+        )
+        self.assertEqual(activity.slug, "kitesurf-puesta-a-punto")
+
+    def test_editing_activity_preserves_slug_and_can_hide_it(self):
+        response = self.client.post(
+            reverse("marketplace:manage_activity_edit", kwargs={"pk": self.activity.pk}),
+            {
+                "school": self.school.pk,
+                "title": "Wingfoil iniciación actualizada",
+                "sport": Activity.Sport.WINGFOIL,
+                "summary": "Una descripción actualizada para la actividad.",
+                "description": "Contenido actualizado.",
+                "price": "95.00",
+                "duration_minutes": 120,
+                "level": "Principiante",
+                "equipment_included": True,
+                "equipment_details": "Material completo.",
+                "location": "Valdevaqueros",
+                "is_featured": True,
+                "is_active": False,
+            },
+        )
+
+        self.assertRedirects(response, reverse("marketplace:manage_activity_list"))
+        self.activity.refresh_from_db()
+        self.assertEqual(self.activity.slug, "iniciacion-wingfoil")
+        self.assertEqual(self.activity.title, "Wingfoil iniciación actualizada")
+        self.assertFalse(self.activity.is_active)

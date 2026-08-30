@@ -1,0 +1,51 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}{{ booking.full_name }}{% endblock %}
+
+{% block content %}
+<a class="manage-back-link manage-back-link--left" href="{% url 'marketplace:manage_booking_list' %}">Volver a reservas</a>
+<header class="manage-page-header manage-page-header--detail">
+    <div>
+        <p class="manage-kicker">Solicitud {{ booking.public_id|stringformat:"s"|slice:":8" }}</p>
+        <h1>{{ booking.full_name }}</h1>
+        <p>{{ booking.activity.title }} · {{ booking.activity.school.name }}</p>
+    </div>
+    <a class="manage-button manage-button--secondary" href="{% url 'marketplace:booking_success' booking.public_id %}" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Ver enlace del estudiante</a>
+</header>
+
+<div class="manage-detail-layout">
+    <section class="manage-detail-main">
+        <div class="manage-section-heading"><div><p class="manage-kicker">Estado</p><h2>Seguimiento</h2></div></div>
+        <div class="manage-status-actions" role="group" aria-label="Cambiar estado">
+            {% for value, label in status_choices %}
+                {% if perms.marketplace.change_bookingrequest %}
+                    <form method="post" action="{% url 'marketplace:manage_booking_status' booking.public_id %}">
+                        {% csrf_token %}<input type="hidden" name="status" value="{{ value }}">
+                        <button class="manage-status-choice manage-status-choice--{{ value }}{% if booking.status == value %} is-current{% endif %}" type="submit"{% if booking.status == value %} disabled{% endif %}>{{ label }}</button>
+                    </form>
+                {% elif booking.status == value %}
+                    <span class="manage-status manage-status--{{ value }}">{{ label }}</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="manage-section-heading manage-section-heading--spaced"><div><p class="manage-kicker">Solicitud</p><h2>Datos de la clase</h2></div></div>
+        <dl class="manage-data-grid">
+            <div><dt>Escuela</dt><dd>{{ booking.activity.school.name }}</dd></div>
+            <div><dt>Actividad</dt><dd>{{ booking.activity.title }}</dd></div>
+            <div><dt>Fecha preferida</dt><dd>{{ booking.preferred_date|date:"l, d \d\e F \d\e Y" }}</dd></div>
+            <div><dt>Participantes</dt><dd>{{ booking.participants }}</dd></div>
+            <div><dt>Nivel</dt><dd>{{ booking.level|default:"No indicado" }}</dd></div>
+            <div><dt>Recibida</dt><dd>{{ booking.created_at|date:"d M Y, H:i" }}</dd></div>
+        </dl>
+        {% if booking.notes %}<div class="manage-notes"><span>Notas</span><p>{{ booking.notes|linebreaksbr }}</p></div>{% endif %}
+    </section>
+    <aside class="manage-contact-panel">
+        <p class="manage-kicker">Contacto</p>
+        <h2>{{ booking.full_name }}</h2>
+        <p>{{ booking.contact }}</p>
+        {% if "@" in booking.contact %}<a class="manage-button manage-button--primary" href="mailto:{{ booking.contact }}"><i data-lucide="mail"></i>Enviar email</a>{% else %}<a class="manage-button manage-button--primary" href="tel:{{ booking.contact }}"><i data-lucide="phone"></i>Llamar</a>{% endif %}
+        <small>La plaza solo está cerrada cuando el estado figura como Confirmada.</small>
+    </aside>
+</div>
+{% endblock %}

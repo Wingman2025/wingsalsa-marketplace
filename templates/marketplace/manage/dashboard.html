@@ -1,0 +1,56 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}Resumen{% endblock %}
+
+{% block content %}
+<header class="manage-page-header">
+    <div>
+        <p class="manage-kicker">Panel de gestión</p>
+        <h1>Resumen de hoy</h1>
+        <p>Lo que necesita atención y la actividad más reciente.</p>
+    </div>
+    <div class="manage-header-actions">
+        {% if perms.marketplace.add_activity %}<a class="manage-button manage-button--secondary" href="{% url 'marketplace:manage_activity_create' %}"><i data-lucide="plus"></i>Nueva actividad</a>{% endif %}
+        {% if perms.marketplace.add_bookingrequest %}<a class="manage-button manage-button--primary" href="{% url 'marketplace:manage_booking_create' %}"><i data-lucide="user-plus"></i>Nueva reserva</a>{% endif %}
+    </div>
+</header>
+
+{% if perms.marketplace.view_bookingrequest or perms.marketplace.view_activity %}
+    <section class="manage-metrics" aria-label="Indicadores">
+        {% if perms.marketplace.view_bookingrequest %}
+            <a href="{% url 'marketplace:manage_booking_list' %}?status=new"><span>Nuevas</span><strong>{{ new_count }}</strong><small>Por revisar</small></a>
+            <a href="{% url 'marketplace:manage_booking_list' %}?status=contacted"><span>Contactadas</span><strong>{{ contacted_count }}</strong><small>En conversación</small></a>
+            <a href="{% url 'marketplace:manage_booking_list' %}?status=confirmed"><span>Confirmadas</span><strong>{{ confirmed_count }}</strong><small>Reservas cerradas</small></a>
+        {% endif %}
+        {% if perms.marketplace.view_activity %}<a href="{% url 'marketplace:manage_activity_list' %}?visibility=active"><span>Actividades</span><strong>{{ active_activity_count }}</strong><small>Publicadas</small></a>{% endif %}
+    </section>
+{% endif %}
+
+{% if perms.marketplace.view_bookingrequest %}
+    <section class="manage-section">
+        <div class="manage-section-heading">
+            <div><p class="manage-kicker">Últimos movimientos</p><h2>Solicitudes recientes</h2></div>
+            <a class="manage-text-link" href="{% url 'marketplace:manage_booking_list' %}">Ver todas</a>
+        </div>
+        {% if recent_bookings %}
+            <div class="manage-table-wrap">
+                <table class="manage-table manage-table--dashboard">
+                    <thead><tr><th>Estudiante</th><th>Actividad</th><th>Fecha</th><th>Estado</th></tr></thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                            <tr>
+                                <td><a class="manage-row-link" href="{% url 'marketplace:manage_booking_detail' booking.public_id %}"><strong>{{ booking.full_name }}</strong><small>{{ booking.contact }}</small></a></td>
+                                <td>{{ booking.activity.title }}<small>{{ booking.activity.school.name }}</small></td>
+                                <td>{{ booking.preferred_date|date:"d M Y" }}</td>
+                                <td><span class="manage-status manage-status--{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="manage-empty"><strong>Aún no hay solicitudes.</strong><p>Las nuevas reservas aparecerán aquí.</p></div>
+        {% endif %}
+    </section>
+{% endif %}
+{% endblock %}

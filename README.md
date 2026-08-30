@@ -12,7 +12,7 @@ docker compose up -d db
 .\.venv\Scripts\python.exe manage.py runserver
 ```
 
-La web estará en `http://127.0.0.1:8000/` y el panel en `http://127.0.0.1:8000/admin/`.
+La web estará en `http://127.0.0.1:8000/`. El backoffice operativo diario está en `http://127.0.0.1:8000/gestion/` para gestionar reservas, escuelas y actividades. Django Admin permanece en `http://127.0.0.1:8000/admin/` para la administración técnica.
 
 ## Comprobaciones
 

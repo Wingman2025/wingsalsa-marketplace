@@ -1,0 +1,46 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>{% block title %}Gestión{% endblock %} · Wingsalsa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/management.css' %}">
+</head>
+<body class="manage-body">
+    <aside class="manage-sidebar">
+        <a class="manage-brand" href="{% url 'marketplace:manage_dashboard' %}">
+            <span>W</span>
+            <strong>Wingsalsa</strong>
+        </a>
+        <nav aria-label="Gestión principal">
+            <a class="{% if request.resolver_match.url_name == 'manage_dashboard' %}is-active{% endif %}" href="{% url 'marketplace:manage_dashboard' %}"><i data-lucide="layout-dashboard"></i><span>Resumen</span></a>
+            {% if perms.marketplace.view_bookingrequest %}<a class="{% if 'manage_booking' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_booking_list' %}"><i data-lucide="calendar-check"></i><span>Reservas</span></a>{% endif %}
+            {% if perms.marketplace.view_activity %}<a class="{% if 'manage_activity' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_activity_list' %}"><i data-lucide="waves"></i><span>Actividades</span></a>{% endif %}
+            {% if perms.marketplace.view_school %}<a class="{% if 'manage_school' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_school_list' %}"><i data-lucide="store"></i><span>Escuelas</span></a>{% endif %}
+            <a class="manage-technical-link" href="{% url 'admin:index' %}"><i data-lucide="settings"></i><span>Admin técnico</span></a>
+        </nav>
+        <div class="manage-sidebar-footer">
+            <span>{{ request.user.get_short_name|default:request.user.username }}</span>
+            <form method="post" action="{% url 'marketplace:manage_logout' %}">
+                {% csrf_token %}
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </div>
+    </aside>
+    <main class="manage-main">
+        {% if messages %}
+            <div class="manage-messages" aria-live="polite">
+                {% for message in messages %}<div class="manage-alert manage-alert--{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script>if (window.lucide) { window.lucide.createIcons(); }</script>
+</body>
+</html>

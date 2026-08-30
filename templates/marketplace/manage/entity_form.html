@@ -1,0 +1,25 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<a class="manage-back-link manage-back-link--left" href="{{ cancel_url }}">Volver</a>
+<header class="manage-page-header">
+    <div><p class="manage-kicker">{{ kicker }}</p><h1>{{ title }}</h1><p>{{ intro }}</p></div>
+    {% if preview_url %}<a class="manage-button manage-button--secondary" href="{{ preview_url }}" target="_blank" rel="noopener">Ver en la web</a>{% endif %}
+</header>
+<form method="post" class="manage-edit-form" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="manage-alert manage-alert--error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="manage-form-grid">
+        {% for field in form %}
+            <div class="manage-field{% if field.field.widget.input_type == 'checkbox' %} manage-field--checkbox{% elif field.name == 'description' or field.name == 'summary' %} manage-field--wide{% endif %}{% if field.errors %} has-error{% endif %}">
+                {% if field.field.widget.input_type == 'checkbox' %}{{ field }}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<p class="manage-field-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="manage-form-actions"><a class="manage-button manage-button--ghost" href="{{ cancel_url }}">Cancelar</a><button class="manage-button manage-button--primary" type="submit">{{ submit_label }}</button></div>
+</form>
+{% endblock %}

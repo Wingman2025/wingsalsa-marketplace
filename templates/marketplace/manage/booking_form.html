@@ -1,0 +1,25 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}Nueva reserva{% endblock %}
+
+{% block content %}
+<a class="manage-back-link manage-back-link--left" href="{% url 'marketplace:manage_booking_list' %}">Volver a reservas</a>
+<header class="manage-page-header">
+    <div><p class="manage-kicker">Alta manual</p><h1>Nueva reserva</h1><p>Registra una solicitud recibida por teléfono, email o en persona.</p></div>
+</header>
+<form method="post" class="manage-edit-form" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="manage-alert manage-alert--error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="manage-form-grid">
+        {% for field in form %}
+            <div class="manage-field{% if field.name == 'notes' %} manage-field--wide{% endif %}{% if field.errors %} has-error{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<p class="manage-field-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="manage-form-actions"><a class="manage-button manage-button--ghost" href="{% url 'marketplace:manage_booking_list' %}">Cancelar</a><button class="manage-button manage-button--primary" type="submit">Guardar reserva</button></div>
+</form>
+{% endblock %}

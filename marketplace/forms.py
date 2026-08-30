@@ -52,7 +52,7 @@ class BookingRequestForm(forms.ModelForm):
             "participants": forms.NumberInput(attrs={"min": 1, "max": 20}),
             "level": forms.TextInput(attrs={"placeholder": "Por ejemplo: principiante"}),
             "notes": forms.Textarea(
-                attrs={"rows": 4, "placeholder": "Cuéntanos qué necesitas (opcional)"}
+                attrs={"rows": 3, "placeholder": "Cuéntanos qué necesitas (opcional)"}
             ),
         }
         labels = {

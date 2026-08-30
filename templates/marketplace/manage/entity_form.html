@@ -8,7 +8,7 @@
     <div><p class="manage-kicker">{{ kicker }}</p><h1>{{ title }}</h1><p>{{ intro }}</p></div>
     {% if preview_url %}<a class="manage-button manage-button--secondary" href="{{ preview_url }}" target="_blank" rel="noopener">Ver en la web</a>{% endif %}
 </header>
-<form method="post" class="manage-edit-form" novalidate>
+<form method="post" enctype="multipart/form-data" class="manage-edit-form" novalidate>
     {% csrf_token %}
     {% if form.non_field_errors %}<div class="manage-alert manage-alert--error">{{ form.non_field_errors }}</div>{% endif %}
     <div class="manage-form-grid">

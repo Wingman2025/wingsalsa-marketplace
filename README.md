@@ -32,3 +32,5 @@ Las variables disponibles están documentadas en `.env.example`. Por defecto el 
 ## Railway
 
 El proyecto incluye un `Dockerfile` reproducible y `railway.json` con el healthcheck y la política de reinicio. La imagen contiene los archivos estáticos y su arranque aplica migraciones, prepara los datos iniciales y ejecuta Gunicorn. La base de datos de producción se configura mediante las variables `PGDATABASE`, `PGUSER`, `PGPASSWORD`, `PGHOST` y `PGPORT` del servicio PostgreSQL.
+
+Para conservar las imágenes subidas entre despliegues, añade un volumen de Railway montado en `/app/media`.

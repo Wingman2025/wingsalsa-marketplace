@@ -397,7 +397,7 @@ def manage_activity_list(request):
 @staff_member_required(login_url="marketplace:manage_login")
 @permission_required("marketplace.add_activity", raise_exception=True)
 def manage_activity_create(request):
-    form = ManagementActivityForm(request.POST or None)
+    form = ManagementActivityForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "La actividad se ha creado correctamente.")
@@ -420,7 +420,7 @@ def manage_activity_create(request):
 @permission_required("marketplace.change_activity", raise_exception=True)
 def manage_activity_edit(request, pk):
     activity = get_object_or_404(Activity, pk=pk)
-    form = ManagementActivityForm(request.POST or None, instance=activity)
+    form = ManagementActivityForm(request.POST or None, request.FILES or None, instance=activity)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Los cambios de la actividad se han guardado.")

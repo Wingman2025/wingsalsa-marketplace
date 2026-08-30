@@ -1,8 +1,10 @@
 from datetime import date, timedelta
+from tempfile import TemporaryDirectory
 
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .admin import BookingRequestAdmin
@@ -406,6 +408,41 @@ class ManagementWorkflowTests(TestCase):
         activity = Activity.objects.get(title="Actividad sin precio")
         self.assertRedirects(response, reverse("marketplace:manage_activity_list"))
         self.assertIsNone(activity.price)
+
+    def test_staff_can_upload_activity_image_shown_on_home(self):
+        image = SimpleUploadedFile(
+            "wingfoil.gif",
+            b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;",
+            content_type="image/gif",
+        )
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse("marketplace:manage_activity_create"),
+                {
+                    "school": self.school.pk,
+                    "title": "Wingfoil con imagen",
+                    "sport": self.wingfoil.pk,
+                    "summary": "Actividad con portada propia.",
+                    "description": "Descripción de la actividad.",
+                    "image": image,
+                    "price": "80.00",
+                    "duration_minutes": 90,
+                    "level": "Principiante",
+                    "equipment_included": True,
+                    "equipment_details": "Material completo.",
+                    "location": "Valdevaqueros",
+                    "is_featured": True,
+                    "is_active": True,
+                },
+            )
+            activity = Activity.objects.get(title="Wingfoil con imagen")
+            self.assertRedirects(response, reverse("marketplace:manage_activity_list"))
+            self.assertTrue(activity.image.name.startswith("activities/wingfoil"))
+            self.assertContains(self.client.get(reverse("marketplace:home")), activity.image.url)
+            with override_settings(DEBUG=False):
+                image_response = self.client.get(activity.image.url)
+                self.assertEqual(image_response.status_code, 200)
+                image_response.close()
 
     def test_editing_activity_preserves_slug_and_can_hide_it(self):
         response = self.client.post(

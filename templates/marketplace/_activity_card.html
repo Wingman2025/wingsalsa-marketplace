@@ -1,9 +1,10 @@
 <article class="activity-card">
     <a class="activity-visual {% if activity.sport.slug == 'wingfoil' or activity.sport.slug == 'kitesurf' or activity.sport.slug == 'yoga' or activity.sport.slug == 'volley' %}sport-{{ activity.sport.slug }}{% else %}sport-other{% endif %}" href="{{ activity.get_absolute_url }}" aria-label="Ver {{ activity.title }}">
-        <span>{{ activity.sport.name }}</span>
-        <span class="visual-symbol" aria-hidden="true">
+        {% if activity.image %}<img src="{{ activity.image.url }}" alt="" loading="lazy">{% endif %}
+        <span class="activity-sport-label">{{ activity.sport.name }}</span>
+        {% if not activity.image %}<span class="visual-symbol" aria-hidden="true">
             {% if activity.sport.slug == 'wingfoil' %}≈{% elif activity.sport.slug == 'kitesurf' %}↗{% elif activity.sport.slug == 'yoga' %}○{% elif activity.sport.slug == 'volley' %}●{% else %}+{% endif %}
-        </span>
+        </span>{% endif %}
     </a>
     <div class="activity-card-body">
         <p class="eyebrow">{{ activity.school.name }} · {{ activity.location }}</p>

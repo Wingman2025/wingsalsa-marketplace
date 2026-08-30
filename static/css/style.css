@@ -111,7 +111,8 @@ nav a { text-decoration: none; font-weight: 600; }
 .activity-card { overflow: hidden; border-radius: 22px; background: var(--paper); box-shadow: 0 2px 0 rgba(23, 33, 31, .08); transition: transform .2s, box-shadow .2s; }
 .activity-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
 .activity-visual { position: relative; height: 210px; padding: 20px; display: block; overflow: hidden; color: var(--ink); text-decoration: none; }
-.activity-visual > span:first-child { position: relative; z-index: 1; padding: 7px 11px; border-radius: 999px; background: rgba(255,255,255,.75); font-size: 12px; font-weight: 800; }
+.activity-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.activity-sport-label { position: relative; z-index: 1; padding: 7px 11px; border-radius: 999px; background: rgba(255,255,255,.75); font-size: 12px; font-weight: 800; }
 .visual-symbol { position: absolute; right: 18px; bottom: -52px; font: 800 210px/1 "Manrope", sans-serif; opacity: .83; }
 .sport-wingfoil { background: #81ded6; }
 .sport-kitesurf { background: #9ec7ff; }

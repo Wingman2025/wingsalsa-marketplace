@@ -52,6 +52,11 @@ class Activity(models.Model):
     slug = models.SlugField(unique=True)
     summary = models.CharField("resumen", max_length=220)
     description = models.TextField("descripción")
+    image = models.ImageField(
+        "imagen de portada",
+        upload_to="activities/",
+        blank=True,
+    )
     price = models.DecimalField(
         "precio orientativo",
         max_digits=8,

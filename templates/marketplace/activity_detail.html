@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ activity.title }} · Wingsalsa MarketPlace{% endblock %}
+
+{% block content %}
+<section class="detail-layout">
+    <div class="detail-main">
+        <a class="back-link" href="{% url 'marketplace:activity_list' %}">← Volver a actividades</a>
+        <div class="detail-visual sport-{{ activity.sport }}">
+            <span>{{ activity.get_sport_display }}</span>
+            <span class="detail-symbol" aria-hidden="true">
+                {% if activity.sport == 'wingfoil' %}≈{% elif activity.sport == 'kitesurf' %}↗{% elif activity.sport == 'yoga' %}○{% elif activity.sport == 'volley' %}●{% else %}+{% endif %}
+            </span>
+        </div>
+        <p class="eyebrow">{{ activity.school.name }} · {{ activity.location }}</p>
+        <h1>{{ activity.title }}</h1>
+        <p class="detail-lead">{{ activity.summary }}</p>
+        <div class="facts">
+            <div><span>Duración</span><strong>{{ activity.duration_minutes }} min</strong></div>
+            <div><span>Nivel</span><strong>{{ activity.level }}</strong></div>
+            <div><span>Precio</span><strong>Desde {{ activity.price|floatformat:0 }} €</strong></div>
+            <div><span>Material</span><strong>{% if activity.equipment_included %}Incluido{% else %}Consulta opciones{% endif %}</strong></div>
+        </div>
+        <div class="description-copy">
+            <h2>Sobre la clase</h2>
+            {{ activity.description|linebreaks }}
+            {% if activity.equipment_details %}<p><strong>Material:</strong> {{ activity.equipment_details }}</p>{% endif %}
+        </div>
+    </div>
+
+    <aside class="booking-panel" id="solicitar">
+        <p class="kicker">Solicitar plaza</p>
+        <h2>¿Qué día te viene bien?</h2>
+        <p class="panel-intro">Envíanos tus datos y confirmaremos disponibilidad contigo.</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-field{% if field.errors %} has-error{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span>opcional</span>{% endif %}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <button class="button button-primary button-full" type="submit">Enviar solicitud</button>
+            <p class="form-note">No se realizará ningún cobro. La escuela te contactará para confirmar.</p>
+        </form>
+    </aside>
+</section>
+{% endblock %}
+

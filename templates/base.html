@@ -1,0 +1,37 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Clases deportivas en Tarifa con escuelas locales.">
+    <title>{% block title %}Wingsalsa MarketPlace{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'marketplace:home' %}" aria-label="Wingsalsa MarketPlace, inicio">
+            <span class="brand-mark">W</span>
+            <span>Wingsalsa <b>MarketPlace</b></span>
+        </a>
+        <nav aria-label="Navegación principal">
+            <a href="{% url 'marketplace:activity_list' %}">Actividades</a>
+            <a class="admin-link" href="{% url 'admin:index' %}">Gestionar</a>
+        </nav>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer>
+        <div>
+            <strong>Wingsalsa MarketPlace</strong>
+            <p>Actividades deportivas con escuelas locales de Tarifa.</p>
+        </div>
+        <a href="{% url 'marketplace:activity_list' %}">Ver actividades</a>
+    </footer>
+</body>
+</html>
+

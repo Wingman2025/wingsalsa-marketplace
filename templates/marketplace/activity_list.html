@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Actividades · Wingsalsa MarketPlace{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="kicker">Tarifa se mueve</p>
+    <h1>Encuentra tu próxima clase</h1>
+    <p>Wingfoil, kite, yoga y más propuestas de escuelas locales.</p>
+</section>
+
+<section class="catalog-layout">
+    <form class="filters" method="get" aria-label="Filtrar actividades">
+        <div class="filter-field filter-search">
+            <label for="id_q">Buscar</label>
+            <input id="id_q" name="q" type="search" value="{{ query }}" placeholder="Actividad o lugar">
+        </div>
+        <div class="filter-field">
+            <label for="id_sport">Deporte</label>
+            <select id="id_sport" name="sport">
+                <option value="">Todos</option>
+                {% for value, label in sports %}
+                    <option value="{{ value }}" {% if selected_sport == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="id_school">Escuela</label>
+            <select id="id_school" name="school">
+                <option value="">Todas</option>
+                {% for school in schools %}
+                    <option value="{{ school.slug }}" {% if selected_school == school.slug %}selected{% endif %}>{{ school.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="button button-dark" type="submit">Buscar</button>
+    </form>
+
+    <div class="catalog-results">
+        <p class="result-count">{{ activities|length }} actividad{{ activities|length|pluralize:"es" }}</p>
+        {% if activities %}
+            <div class="activity-grid">
+                {% for activity in activities %}
+                    {% include "marketplace/_activity_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state compact">
+                <h2>No encontramos actividades</h2>
+                <p>Prueba quitando algún filtro.</p>
+                <a class="button button-secondary" href="{% url 'marketplace:activity_list' %}">Limpiar filtros</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+

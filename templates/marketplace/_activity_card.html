@@ -1,0 +1,18 @@
+<article class="activity-card">
+    <a class="activity-visual sport-{{ activity.sport }}" href="{{ activity.get_absolute_url }}" aria-label="Ver {{ activity.title }}">
+        <span>{{ activity.get_sport_display }}</span>
+        <span class="visual-symbol" aria-hidden="true">
+            {% if activity.sport == 'wingfoil' %}≈{% elif activity.sport == 'kitesurf' %}↗{% elif activity.sport == 'yoga' %}○{% elif activity.sport == 'volley' %}●{% else %}+{% endif %}
+        </span>
+    </a>
+    <div class="activity-card-body">
+        <p class="eyebrow">{{ activity.school.name }} · {{ activity.location }}</p>
+        <h3><a href="{{ activity.get_absolute_url }}">{{ activity.title }}</a></h3>
+        <p>{{ activity.summary }}</p>
+        <div class="card-meta">
+            <span>{{ activity.duration_minutes }} min</span>
+            <strong>Desde {{ activity.price|floatformat:0 }} €</strong>
+        </div>
+    </div>
+</article>
+

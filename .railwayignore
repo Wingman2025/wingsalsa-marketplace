@@ -1,0 +1,9 @@
+.venv/
+.git/
+.env
+*.sqlite3
+__pycache__/
+tests/
+requirements-dev.txt
+compose.yaml
+

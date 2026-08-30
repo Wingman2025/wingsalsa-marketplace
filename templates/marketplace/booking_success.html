@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitud enviada · Wingsalsa MarketPlace{% endblock %}
+
+{% block content %}
+<section class="success-wrap">
+    <div class="success-card">
+        <span class="success-icon" aria-hidden="true">✓</span>
+        <p class="kicker">Solicitud enviada</p>
+        <h1>Ya tenemos tu petición.</h1>
+        <p>Contactaremos contigo en <strong>{{ booking.contact }}</strong> para confirmar disponibilidad con {{ booking.activity.school.name }}.</p>
+        <div class="success-summary">
+            <div><span>Actividad</span><strong>{{ booking.activity.title }}</strong></div>
+            <div><span>Fecha preferida</span><strong>{{ booking.preferred_date|date:"j \d\e F \d\e Y" }}</strong></div>
+            <div><span>Personas</span><strong>{{ booking.participants }}</strong></div>
+        </div>
+        <p class="important-note">Tu plaza todavía no está confirmada y no se ha realizado ningún cobro.</p>
+        <a class="button button-dark" href="{% url 'marketplace:activity_list' %}">Ver más actividades</a>
+    </div>
+</section>
+{% endblock %}
+

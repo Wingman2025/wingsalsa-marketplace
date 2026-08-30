@@ -1,0 +1,10 @@
+.git
+.venv
+.env
+*.sqlite3
+__pycache__
+staticfiles
+tests
+requirements-dev.txt
+compose.yaml
+

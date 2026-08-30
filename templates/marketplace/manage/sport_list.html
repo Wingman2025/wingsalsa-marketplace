@@ -1,0 +1,23 @@
+{% extends "marketplace/manage/base.html" %}
+
+{% block title %}Deportes{% endblock %}
+
+{% block content %}
+<header class="manage-page-header">
+    <div><p class="manage-kicker">Catálogo</p><h1>Deportes</h1><p>Crea las disciplinas que podrás asignar a cada actividad.</p></div>
+    {% if perms.marketplace.add_sport %}<a class="manage-button manage-button--primary" href="{% url 'marketplace:manage_sport_create' %}"><i data-lucide="plus"></i>Nuevo deporte</a>{% endif %}
+</header>
+<form class="manage-filterbar manage-filterbar--compact" method="get">
+    <div class="manage-field manage-field--search"><label for="sport-q">Buscar</label><input id="sport-q" type="search" name="q" value="{{ query }}" placeholder="Nombre del deporte"></div>
+    <div class="manage-field"><label for="sport-visibility">Disponibilidad</label><select id="sport-visibility" name="visibility"><option value="">Todos</option><option value="active"{% if visibility == 'active' %} selected{% endif %}>Disponibles</option><option value="inactive"{% if visibility == 'inactive' %} selected{% endif %}>No disponibles</option></select></div>
+    <button class="manage-button manage-button--secondary" type="submit"><i data-lucide="list-filter"></i>Filtrar</button>
+</form>
+{% if sports %}
+<div class="manage-table-wrap">
+    <table class="manage-table manage-table--responsive">
+        <thead><tr><th>Deporte</th><th>Actividades</th><th>Disponibilidad</th><th></th></tr></thead>
+        <tbody>{% for sport in sports %}<tr><td data-label="Deporte"><strong>{{ sport.name }}</strong></td><td data-label="Actividades">{{ sport.activity_count }}</td><td data-label="Disponibilidad"><span class="manage-visibility{% if sport.is_active %} is-visible{% endif %}">{% if sport.is_active %}Disponible{% else %}No disponible{% endif %}</span></td><td>{% if perms.marketplace.change_sport %}<a class="manage-row-action" href="{% url 'marketplace:manage_sport_edit' sport.pk %}">Editar <i data-lucide="arrow-right"></i></a>{% endif %}</td></tr>{% endfor %}</tbody>
+    </table>
+</div>
+{% else %}<div class="manage-empty"><strong>No hay deportes con estos filtros.</strong></div>{% endif %}
+{% endblock %}

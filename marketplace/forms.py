@@ -2,9 +2,10 @@ from datetime import date
 
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Q
 from django.utils.text import slugify
 
-from .models import Activity, BookingRequest, School
+from .models import Activity, BookingRequest, School, Sport
 
 
 def unique_slug(instance, source):
@@ -142,6 +143,24 @@ class ManagementSchoolForm(forms.ModelForm):
         return school
 
 
+class ManagementSportForm(forms.ModelForm):
+    class Meta:
+        model = Sport
+        fields = ["name", "is_active"]
+        labels = {
+            "name": "Nombre",
+            "is_active": "Disponible para actividades",
+        }
+
+    def save(self, commit=True):
+        sport = super().save(commit=False)
+        if not sport.slug:
+            sport.slug = unique_slug(sport, sport.name)
+        if commit:
+            sport.save()
+        return sport
+
+
 class ManagementActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
@@ -186,7 +205,11 @@ class ManagementActivityForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["school"].queryset = School.objects.order_by("name")
         self.fields["school"].empty_label = "Selecciona una escuela"
-        self.fields["sport"].choices = [("", "Selecciona un deporte"), *Activity.Sport.choices]
+        current_sport_id = self.instance.sport_id if self.instance.pk else None
+        self.fields["sport"].queryset = Sport.objects.filter(
+            Q(is_active=True) | Q(pk=current_sport_id)
+        ).order_by("name")
+        self.fields["sport"].empty_label = "Selecciona un deporte"
 
     def save(self, commit=True):
         activity = super().save(commit=False)

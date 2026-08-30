@@ -1,8 +1,8 @@
 <article class="activity-card">
-    <a class="activity-visual sport-{{ activity.sport }}" href="{{ activity.get_absolute_url }}" aria-label="Ver {{ activity.title }}">
-        <span>{{ activity.get_sport_display }}</span>
+    <a class="activity-visual {% if activity.sport.slug == 'wingfoil' or activity.sport.slug == 'kitesurf' or activity.sport.slug == 'yoga' or activity.sport.slug == 'volley' %}sport-{{ activity.sport.slug }}{% else %}sport-other{% endif %}" href="{{ activity.get_absolute_url }}" aria-label="Ver {{ activity.title }}">
+        <span>{{ activity.sport.name }}</span>
         <span class="visual-symbol" aria-hidden="true">
-            {% if activity.sport == 'wingfoil' %}≈{% elif activity.sport == 'kitesurf' %}↗{% elif activity.sport == 'yoga' %}○{% elif activity.sport == 'volley' %}●{% else %}+{% endif %}
+            {% if activity.sport.slug == 'wingfoil' %}≈{% elif activity.sport.slug == 'kitesurf' %}↗{% elif activity.sport.slug == 'yoga' %}○{% elif activity.sport.slug == 'volley' %}●{% else %}+{% endif %}
         </span>
     </a>
     <div class="activity-card-body">

@@ -51,6 +51,17 @@ urlpatterns = [
         views.manage_school_edit,
         name="manage_school_edit",
     ),
+    path("gestion/deportes/", views.manage_sport_list, name="manage_sport_list"),
+    path(
+        "gestion/deportes/nuevo/",
+        views.manage_sport_create,
+        name="manage_sport_create",
+    ),
+    path(
+        "gestion/deportes/<int:pk>/editar/",
+        views.manage_sport_edit,
+        name="manage_sport_edit",
+    ),
     path(
         "gestion/actividades/",
         views.manage_activity_list,

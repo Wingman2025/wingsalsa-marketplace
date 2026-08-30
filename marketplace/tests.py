@@ -6,18 +6,20 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .admin import BookingRequestAdmin
-from .models import Activity, BookingRequest, School
+from .models import Activity, BookingRequest, School, Sport
 
 
 class MarketplaceTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.school = School.objects.create(name="WingSalsa", slug="wingsalsa")
+        cls.wingfoil = Sport.objects.get(slug="wingfoil")
+        cls.kitesurf = Sport.objects.get(slug="kitesurf")
         cls.activity = Activity.objects.create(
             school=cls.school,
             title="Iniciación al wingfoil",
             slug="iniciacion-wingfoil",
-            sport=Activity.Sport.WINGFOIL,
+            sport=cls.wingfoil,
             summary="Primera sesión con material incluido.",
             description="Aprende las bases del wingfoil.",
             price=90,
@@ -45,7 +47,7 @@ class MarketplaceTests(TestCase):
             school=other_school,
             title="Actividad anterior alfabéticamente",
             slug="actividad-otra",
-            sport=Activity.Sport.KITESURF,
+            sport=self.kitesurf,
             summary="Otra actividad destacada.",
             description="Descripción.",
             price=50,
@@ -191,11 +193,12 @@ class ManagementAccessTests(TestCase):
 
     def test_staff_without_booking_permission_cannot_see_student_data(self):
         school = School.objects.create(name="WingSalsa", slug="wingsalsa")
+        sport = Sport.objects.get(slug="wingfoil")
         activity = Activity.objects.create(
             school=school,
             title="Iniciación al wingfoil",
             slug="iniciacion-wingfoil",
-            sport=Activity.Sport.WINGFOIL,
+            sport=sport,
             summary="Primera sesión.",
             description="Descripción.",
             price=90,
@@ -231,11 +234,13 @@ class ManagementWorkflowTests(TestCase):
             password="safe-test-password",
         )
         cls.school = School.objects.create(name="WingSalsa", slug="wingsalsa")
+        cls.wingfoil = Sport.objects.get(slug="wingfoil")
+        cls.kitesurf = Sport.objects.get(slug="kitesurf")
         cls.activity = Activity.objects.create(
             school=cls.school,
             title="Iniciación al wingfoil",
             slug="iniciacion-wingfoil",
-            sport=Activity.Sport.WINGFOIL,
+            sport=cls.wingfoil,
             summary="Primera sesión con material incluido.",
             description="Aprende las bases del wingfoil.",
             price=90,
@@ -326,7 +331,7 @@ class ManagementWorkflowTests(TestCase):
             {
                 "school": new_school.pk,
                 "title": "Kitesurf puesta a punto",
-                "sport": Activity.Sport.KITESURF,
+                "sport": self.kitesurf.pk,
                 "summary": "Recupera sensaciones con una sesión práctica.",
                 "description": "Sesión adaptada a tu nivel.",
                 "price": "70.00",
@@ -346,13 +351,44 @@ class ManagementWorkflowTests(TestCase):
         )
         self.assertEqual(activity.slug, "kitesurf-puesta-a-punto")
 
+    def test_staff_can_create_sport_and_assign_it_to_activity(self):
+        sport_response = self.client.post(
+            reverse("marketplace:manage_sport_create"),
+            {"name": "Windsurf", "is_active": True},
+        )
+        windsurf = Sport.objects.get(name="Windsurf")
+        self.assertRedirects(sport_response, reverse("marketplace:manage_sport_list"))
+        self.assertEqual(windsurf.slug, "windsurf")
+
+        activity_response = self.client.post(
+            reverse("marketplace:manage_activity_create"),
+            {
+                "school": self.school.pk,
+                "title": "Windsurf desde cero",
+                "sport": windsurf.pk,
+                "summary": "Primeros pasos sobre la tabla.",
+                "description": "Aprende las bases del windsurf.",
+                "price": "70.00",
+                "duration_minutes": 120,
+                "level": "Principiante",
+                "equipment_included": True,
+                "equipment_details": "Material completo.",
+                "location": "Los Lances",
+                "is_featured": False,
+                "is_active": True,
+            },
+        )
+        activity = Activity.objects.get(title="Windsurf desde cero")
+        self.assertRedirects(activity_response, reverse("marketplace:manage_activity_list"))
+        self.assertEqual(activity.sport, windsurf)
+
     def test_editing_activity_preserves_slug_and_can_hide_it(self):
         response = self.client.post(
             reverse("marketplace:manage_activity_edit", kwargs={"pk": self.activity.pk}),
             {
                 "school": self.school.pk,
                 "title": "Wingfoil iniciación actualizada",
-                "sport": Activity.Sport.WINGFOIL,
+                "sport": self.wingfoil.pk,
                 "summary": "Una descripción actualizada para la actividad.",
                 "description": "Contenido actualizado.",
                 "price": "95.00",

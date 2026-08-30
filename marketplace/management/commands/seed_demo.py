@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from marketplace.models import Activity, School
+from marketplace.models import Activity, School, Sport
 
 
 class Command(BaseCommand):
@@ -35,12 +35,25 @@ class Command(BaseCommand):
             },
         )
 
+        sports = {}
+        for slug, name in (
+            ("wingfoil", "Wingfoil"),
+            ("kitesurf", "Kitesurf"),
+            ("yoga", "Yoga"),
+            ("volley", "Vóley"),
+            ("other", "Otro"),
+        ):
+            sports[slug], _ = Sport.objects.update_or_create(
+                slug=slug,
+                defaults={"name": name, "is_active": True},
+            )
+
         activities = [
             {
                 "school": wingsalsa,
                 "slug": "iniciacion-wingfoil",
                 "title": "Iniciación al wingfoil",
-                "sport": Activity.Sport.WINGFOIL,
+                "sport": sports["wingfoil"],
                 "summary": "Tu primera experiencia con el foil, paso a paso y con material incluido.",
                 "description": "Aprende las bases del wingfoil con un instructor local. Empezaremos en tierra, conocerás el material y pasaremos al agua cuando las condiciones sean adecuadas.",
                 "price": 90,
@@ -56,7 +69,7 @@ class Command(BaseCommand):
                 "school": wingsalsa,
                 "slug": "progresion-wingfoil",
                 "title": "Progresión wingfoil",
-                "sport": Activity.Sport.WINGFOIL,
+                "sport": sports["wingfoil"],
                 "summary": "Una sesión enfocada en despegar, mantener el vuelo y ganar control.",
                 "description": "Trabajaremos sobre tu punto actual con objetivos concretos y correcciones prácticas. La sesión se adapta a las condiciones y a tu experiencia.",
                 "price": 75,
@@ -72,7 +85,7 @@ class Command(BaseCommand):
                 "school": tarifa_flow,
                 "slug": "yoga-frente-al-mar",
                 "title": "Yoga frente al mar",
-                "sport": Activity.Sport.YOGA,
+                "sport": sports["yoga"],
                 "summary": "Una práctica abierta para empezar el día con movilidad y calma.",
                 "description": "Sesión accesible de movilidad, respiración y yoga. No necesitas experiencia previa y puedes consultar disponibilidad de esterilla.",
                 "price": 18,
@@ -88,7 +101,7 @@ class Command(BaseCommand):
                 "school": beach_club,
                 "slug": "volley-playa-abierto",
                 "title": "Vóley playa abierto",
-                "sport": Activity.Sport.VOLLEY,
+                "sport": sports["volley"],
                 "summary": "Partido guiado para conocer gente y disfrutar en la arena.",
                 "description": "Grupos organizados por nivel con calentamiento y partidos. Puedes apuntarte solo o con amigos.",
                 "price": 12,

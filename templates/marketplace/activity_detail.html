@@ -6,10 +6,10 @@
 <section class="detail-layout">
     <div class="detail-main">
         <a class="back-link" href="{% url 'marketplace:activity_list' %}">← Volver a actividades</a>
-        <div class="detail-visual sport-{{ activity.sport }}">
-            <span>{{ activity.get_sport_display }}</span>
+        <div class="detail-visual {% if activity.sport.slug == 'wingfoil' or activity.sport.slug == 'kitesurf' or activity.sport.slug == 'yoga' or activity.sport.slug == 'volley' %}sport-{{ activity.sport.slug }}{% else %}sport-other{% endif %}">
+            <span>{{ activity.sport.name }}</span>
             <span class="detail-symbol" aria-hidden="true">
-                {% if activity.sport == 'wingfoil' %}≈{% elif activity.sport == 'kitesurf' %}↗{% elif activity.sport == 'yoga' %}○{% elif activity.sport == 'volley' %}●{% else %}+{% endif %}
+                {% if activity.sport.slug == 'wingfoil' %}≈{% elif activity.sport.slug == 'kitesurf' %}↗{% elif activity.sport.slug == 'yoga' %}○{% elif activity.sport.slug == 'volley' %}●{% else %}+{% endif %}
             </span>
         </div>
         <p class="eyebrow">{{ activity.school.name }} · {{ activity.location }}</p>

@@ -17,8 +17,9 @@ from .forms import (
     ManagementActivityForm,
     ManagementBookingForm,
     ManagementSchoolForm,
+    ManagementSportForm,
 )
-from .models import Activity, BookingRequest, School
+from .models import Activity, BookingRequest, School, Sport
 
 
 def health(request):
@@ -30,7 +31,11 @@ def health(request):
 
 
 def active_activities():
-    return Activity.objects.filter(is_active=True, school__is_active=True).select_related("school")
+    return Activity.objects.filter(
+        is_active=True,
+        school__is_active=True,
+        sport__is_active=True,
+    ).select_related("school", "sport")
 
 
 def home(request):
@@ -61,7 +66,7 @@ def activity_list(request):
     query = request.GET.get("q", "").strip()
 
     if sport:
-        activities = activities.filter(sport=sport)
+        activities = activities.filter(sport__slug=sport)
     if school:
         activities = activities.filter(school__slug=school)
     if query:
@@ -73,7 +78,7 @@ def activity_list(request):
 
     context = {
         "activities": activities,
-        "sports": Activity.Sport.choices,
+        "sports": Sport.objects.filter(is_active=True),
         "schools": School.objects.filter(is_active=True),
         "selected_sport": sport,
         "selected_school": school,
@@ -289,9 +294,73 @@ def manage_school_edit(request, pk):
 
 
 @staff_member_required(login_url="marketplace:manage_login")
+@permission_required("marketplace.view_sport", raise_exception=True)
+def manage_sport_list(request):
+    sports = Sport.objects.annotate(activity_count=Count("activities"))
+    query = request.GET.get("q", "").strip()
+    visibility = request.GET.get("visibility", "").strip()
+    if query:
+        sports = sports.filter(name__icontains=query)
+    if visibility == "active":
+        sports = sports.filter(is_active=True)
+    elif visibility == "inactive":
+        sports = sports.filter(is_active=False)
+    return render(
+        request,
+        "marketplace/manage/sport_list.html",
+        {"sports": sports, "query": query, "visibility": visibility},
+    )
+
+
+@staff_member_required(login_url="marketplace:manage_login")
+@permission_required("marketplace.add_sport", raise_exception=True)
+def manage_sport_create(request):
+    form = ManagementSportForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "El deporte se ha creado correctamente.")
+        return redirect("marketplace:manage_sport_list")
+    return render(
+        request,
+        "marketplace/manage/entity_form.html",
+        {
+            "form": form,
+            "title": "Nuevo deporte",
+            "kicker": "Catálogo",
+            "intro": "Añade una disciplina para asignarla a las actividades.",
+            "submit_label": "Guardar deporte",
+            "cancel_url": reverse("marketplace:manage_sport_list"),
+        },
+    )
+
+
+@staff_member_required(login_url="marketplace:manage_login")
+@permission_required("marketplace.change_sport", raise_exception=True)
+def manage_sport_edit(request, pk):
+    sport = get_object_or_404(Sport, pk=pk)
+    form = ManagementSportForm(request.POST or None, instance=sport)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Los cambios del deporte se han guardado.")
+        return redirect("marketplace:manage_sport_list")
+    return render(
+        request,
+        "marketplace/manage/entity_form.html",
+        {
+            "form": form,
+            "title": sport.name,
+            "kicker": "Editar deporte",
+            "intro": "Actualiza el nombre o su disponibilidad para nuevas actividades.",
+            "submit_label": "Guardar cambios",
+            "cancel_url": reverse("marketplace:manage_sport_list"),
+        },
+    )
+
+
+@staff_member_required(login_url="marketplace:manage_login")
 @permission_required("marketplace.view_activity", raise_exception=True)
 def manage_activity_list(request):
-    activities = Activity.objects.select_related("school")
+    activities = Activity.objects.select_related("school", "sport")
     query = request.GET.get("q", "").strip()
     selected_school = request.GET.get("school", "").strip()
     selected_sport = request.GET.get("sport", "").strip()
@@ -305,7 +374,7 @@ def manage_activity_list(request):
     if selected_school.isdigit():
         activities = activities.filter(school_id=selected_school)
     if selected_sport:
-        activities = activities.filter(sport=selected_sport)
+        activities = activities.filter(sport__slug=selected_sport)
     if visibility == "active":
         activities = activities.filter(is_active=True, school__is_active=True)
     elif visibility == "inactive":
@@ -316,7 +385,7 @@ def manage_activity_list(request):
         {
             "activities": activities,
             "schools": School.objects.order_by("name"),
-            "sports": Activity.Sport.choices,
+            "sports": Sport.objects.order_by("name"),
             "query": query,
             "selected_school": selected_school,
             "selected_sport": selected_sport,

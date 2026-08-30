@@ -21,6 +21,7 @@
             <a class="{% if request.resolver_match.url_name == 'manage_dashboard' %}is-active{% endif %}" href="{% url 'marketplace:manage_dashboard' %}"><i data-lucide="layout-dashboard"></i><span>Resumen</span></a>
             {% if perms.marketplace.view_bookingrequest %}<a class="{% if 'manage_booking' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_booking_list' %}"><i data-lucide="calendar-check"></i><span>Reservas</span></a>{% endif %}
             {% if perms.marketplace.view_activity %}<a class="{% if 'manage_activity' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_activity_list' %}"><i data-lucide="waves"></i><span>Actividades</span></a>{% endif %}
+            {% if perms.marketplace.view_sport %}<a class="{% if 'manage_sport' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_sport_list' %}"><i data-lucide="dumbbell"></i><span>Deportes</span></a>{% endif %}
             {% if perms.marketplace.view_school %}<a class="{% if 'manage_school' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_school_list' %}"><i data-lucide="store"></i><span>Escuelas</span></a>{% endif %}
             <a class="manage-technical-link" href="{% url 'admin:index' %}"><i data-lucide="settings"></i><span>Admin técnico</span></a>
         </nav>

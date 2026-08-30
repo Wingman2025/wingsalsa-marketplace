@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Activity, BookingRequest, School
+from .models import Activity, BookingRequest, School, Sport
 
 
 @admin.register(School)
@@ -11,13 +11,21 @@ class SchoolAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+@admin.register(Sport)
+class SportAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+
+
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
     list_display = ("title", "school", "sport", "price", "is_featured", "is_active")
     list_filter = ("sport", "school", "is_featured", "is_active")
-    search_fields = ("title", "summary", "school__name")
+    search_fields = ("title", "summary", "school__name", "sport__name")
     prepopulated_fields = {"slug": ("title",)}
-    list_select_related = ("school",)
+    list_select_related = ("school", "sport")
 
 
 @admin.register(BookingRequest)

@@ -21,23 +21,35 @@ class School(models.Model):
         return self.name
 
 
-class Activity(models.Model):
-    class Sport(models.TextChoices):
-        WINGFOIL = "wingfoil", "Wingfoil"
-        KITESURF = "kitesurf", "Kitesurf"
-        YOGA = "yoga", "Yoga"
-        VOLLEY = "volley", "Vóley"
-        OTHER = "other", "Otro"
+class Sport(models.Model):
+    name = models.CharField("nombre", max_length=100, unique=True)
+    slug = models.SlugField(unique=True)
+    is_active = models.BooleanField("activo", default=True)
 
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "deporte"
+        verbose_name_plural = "deportes"
+
+    def __str__(self):
+        return self.name
+
+
+class Activity(models.Model):
     school = models.ForeignKey(
         School,
         verbose_name="escuela",
         related_name="activities",
         on_delete=models.PROTECT,
     )
+    sport = models.ForeignKey(
+        Sport,
+        verbose_name="deporte",
+        related_name="activities",
+        on_delete=models.PROTECT,
+    )
     title = models.CharField("título", max_length=160)
     slug = models.SlugField(unique=True)
-    sport = models.CharField("deporte", max_length=20, choices=Sport.choices)
     summary = models.CharField("resumen", max_length=220)
     description = models.TextField("descripción")
     price = models.DecimalField("precio orientativo", max_digits=8, decimal_places=2)
@@ -52,7 +64,7 @@ class Activity(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["sport", "title"]
+        ordering = ["sport__name", "title"]
         verbose_name = "actividad"
         verbose_name_plural = "actividades"
 

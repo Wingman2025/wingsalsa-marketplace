@@ -30,7 +30,7 @@
     {% if activities %}
         <div class="activity-grid">
             {% for activity in activities %}
-                {% include "marketplace/_activity_card.html" with hide_price=True %}
+                {% include "marketplace/_activity_card.html" %}
             {% endfor %}
         </div>
     {% else %}

@@ -12,7 +12,7 @@
         <p>{{ activity.summary }}</p>
         <div class="card-meta">
             <span>{{ activity.duration_minutes }} min</span>
-            {% if not hide_price and activity.price is not None %}<strong>Desde {{ activity.price|floatformat:0 }} €</strong>{% endif %}
+            {% if activity.show_price and activity.price is not None %}<strong>Desde {{ activity.price|floatformat:0 }} €</strong>{% endif %}
         </div>
     </div>
 </article>

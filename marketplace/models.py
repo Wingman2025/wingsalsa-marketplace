@@ -64,6 +64,7 @@ class Activity(models.Model):
         blank=True,
         null=True,
     )
+    show_price = models.BooleanField("mostrar precio en la web", default=False)
     duration_minutes = models.PositiveIntegerField("duración en minutos", default=60)
     level = models.CharField("nivel", max_length=100, default="Todos los niveles")
     equipment_included = models.BooleanField("material incluido", default=False)

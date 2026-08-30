@@ -18,7 +18,7 @@
         <div class="facts">
             <div><span>Duración</span><strong>{{ activity.duration_minutes }} min</strong></div>
             <div><span>Nivel</span><strong>{{ activity.level }}</strong></div>
-            {% if activity.price is not None %}<div><span>Precio</span><strong>Desde {{ activity.price|floatformat:0 }} €</strong></div>{% endif %}
+            {% if activity.show_price and activity.price is not None %}<div><span>Precio</span><strong>Desde {{ activity.price|floatformat:0 }} €</strong></div>{% endif %}
             <div><span>Material</span><strong>{% if activity.equipment_included %}Incluido{% else %}Consulta opciones{% endif %}</strong></div>
         </div>
         <div class="description-copy">

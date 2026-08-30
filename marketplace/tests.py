@@ -38,7 +38,25 @@ class MarketplaceTests(TestCase):
         self.assertContains(home, self.activity.title)
         self.assertContains(catalog, self.activity.title)
         self.assertNotContains(home, "Desde 90 €")
-        self.assertContains(catalog, "Desde 90 €")
+        self.assertNotContains(catalog, "Desde 90 €")
+
+    def test_activity_price_visibility_is_configurable(self):
+        detail_url = self.activity.get_absolute_url()
+        for show_price in (False, True):
+            with self.subTest(show_price=show_price):
+                self.activity.show_price = show_price
+                self.activity.save(update_fields=["show_price"])
+
+                for url in (
+                    reverse("marketplace:home"),
+                    reverse("marketplace:activity_list"),
+                    detail_url,
+                ):
+                    response = self.client.get(url)
+                    if show_price:
+                        self.assertContains(response, "Desde 90 €")
+                    else:
+                        self.assertNotContains(response, "Desde 90 €")
 
     def test_health_checks_database(self):
         response = self.client.get(reverse("marketplace:health"))

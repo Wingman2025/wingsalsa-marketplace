@@ -22,7 +22,10 @@ h1, h2, h3, .manage-brand { font-family: "Manrope", sans-serif; }
 .manage-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 10; width: 240px; padding: 28px 20px; display: flex; flex-direction: column; color: #fff; background: var(--mg-ink); }
 .manage-brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
 .manage-brand > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px 3px 11px 11px; color: var(--mg-ink); background: var(--mg-aqua); font-weight: 800; }
-.manage-sidebar nav { margin-top: 52px; display: grid; gap: 8px; }
+.manage-public-link { margin-top: 24px; padding: 10px 12px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; color: #fff; text-decoration: none; font-size: 13px; font-weight: 700; }
+.manage-public-link:hover { background: rgba(255,255,255,.1); }
+.manage-public-link svg { width: 16px; height: 16px; }
+.manage-sidebar nav { margin-top: 24px; display: grid; gap: 8px; }
 .manage-sidebar nav a { padding: 11px 13px; display: flex; align-items: center; gap: 11px; border-radius: 8px; color: #cbd4d1; text-decoration: none; font-weight: 600; }
 .manage-sidebar nav svg { width: 18px; height: 18px; flex: 0 0 auto; }
 .manage-sidebar nav a:hover, .manage-sidebar nav a.is-active { color: #fff; background: rgba(255,255,255,.1); }
@@ -144,6 +147,7 @@ h1, h2, h3, .manage-brand { font-family: "Manrope", sans-serif; }
 @media (max-width: 900px) {
     .manage-sidebar { position: sticky; inset: auto; top: 0; width: 100%; min-height: auto; padding: 14px 20px; flex-direction: row; align-items: center; }
     .manage-sidebar nav { margin: 0 0 0 auto; display: flex; gap: 3px; }
+    .manage-public-link { order: 3; margin: 0 0 0 12px; padding: 9px 11px; }
     .manage-sidebar-footer { margin: 0 0 0 12px; padding: 0 0 0 12px; border: 0; border-left: 1px solid rgba(255,255,255,.14); }
     .manage-sidebar-footer span { display: none; }
     .manage-main { margin-left: 0; padding: 32px 20px 70px; }
@@ -160,6 +164,7 @@ h1, h2, h3, .manage-brand { font-family: "Manrope", sans-serif; }
 @media (max-width: 620px) {
     .manage-sidebar { flex-wrap: wrap; padding: 12px 14px 8px; }
     .manage-brand strong, .manage-technical-link, .manage-sidebar-footer { display: none !important; }
+    .manage-public-link { margin-left: auto; }
     .manage-sidebar nav { order: 2; width: 100%; margin: 9px 0 0; overflow: hidden; }
     .manage-sidebar nav a { min-width: 0; padding: 9px 4px; flex: 1 1 0; justify-content: center; gap: 5px; font-size: 10px; }
     .manage-sidebar nav svg { width: 15px; height: 15px; }

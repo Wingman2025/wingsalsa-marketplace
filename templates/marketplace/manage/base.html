@@ -17,6 +17,7 @@
             <span>W</span>
             <strong>Wingsalsa</strong>
         </a>
+        <a class="manage-public-link" href="{% url 'marketplace:home' %}"><i data-lucide="external-link"></i><span>Ver web</span></a>
         <nav aria-label="Gestión principal">
             <a class="{% if request.resolver_match.url_name == 'manage_dashboard' %}is-active{% endif %}" href="{% url 'marketplace:manage_dashboard' %}"><i data-lucide="layout-dashboard"></i><span>Resumen</span></a>
             {% if perms.marketplace.view_bookingrequest %}<a class="{% if 'manage_booking' in request.resolver_match.url_name %}is-active{% endif %}" href="{% url 'marketplace:manage_booking_list' %}"><i data-lucide="calendar-check"></i><span>Reservas</span></a>{% endif %}

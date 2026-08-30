@@ -213,6 +213,8 @@ class ManagementAccessTests(TestCase):
 
         staff_response = self.client.get(dashboard_url)
         self.assertEqual(staff_response.status_code, 200)
+        self.assertContains(staff_response, 'href="/"')
+        self.assertContains(staff_response, "Ver web")
         self.assertContains(staff_response, "Resumen de hoy")
 
     def test_management_login_rejects_non_staff_users(self):

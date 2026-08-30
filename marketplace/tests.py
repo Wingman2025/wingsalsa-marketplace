@@ -86,6 +86,40 @@ class MarketplaceTests(TestCase):
         self.assertEqual(booking.status, BookingRequest.Status.NEW)
         self.assertEqual(booking.activity, self.activity)
 
+    def test_booking_link_shows_current_status(self):
+        booking = BookingRequest.objects.create(
+            activity=self.activity,
+            full_name="Ana Pérez",
+            contact="ana@example.com",
+            preferred_date=date.today() + timedelta(days=3),
+            participants=2,
+        )
+        status_url = reverse(
+            "marketplace:booking_success",
+            kwargs={"public_id": booking.public_id},
+        )
+
+        expected_headings = (
+            (BookingRequest.Status.NEW, "Solicitud pendiente"),
+            (BookingRequest.Status.CONTACTED, "Contacto iniciado"),
+            (BookingRequest.Status.CONFIRMED, "Reserva confirmada"),
+            (BookingRequest.Status.CANCELLED, "Solicitud cancelada"),
+        )
+        for status, heading in expected_headings:
+            with self.subTest(status=status):
+                booking.status = status
+                booking.save(update_fields=["status"])
+
+                response = self.client.get(status_url)
+                self.assertContains(response, heading)
+                self.assertContains(response, booking.get_status_display())
+                self.assertContains(response, self.activity.title)
+                self.assertContains(response, self.school.name)
+                self.assertIn("no-cache", response.headers["Cache-Control"])
+
+                if status != BookingRequest.Status.NEW:
+                    self.assertNotContains(response, "Tu plaza todavía no está confirmada")
+
     def test_past_date_is_rejected(self):
         response = self.client.post(
             self.activity.get_absolute_url(),

@@ -2,6 +2,7 @@ from django.db.models import Case, IntegerField, Q, Value, When
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
 
 from .forms import BookingRequestForm
 from .models import Activity, BookingRequest, School
@@ -83,6 +84,7 @@ def activity_detail(request, slug):
     )
 
 
+@never_cache
 def booking_success(request, public_id):
     booking = get_object_or_404(
         BookingRequest.objects.select_related("activity", "activity__school"),

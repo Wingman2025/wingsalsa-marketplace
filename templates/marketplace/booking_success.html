@@ -1,20 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Solicitud enviada · Wingsalsa MarketPlace{% endblock %}
+{% block title %}Estado de tu solicitud · Wingsalsa MarketPlace{% endblock %}
 
 {% block content %}
 <section class="success-wrap">
     <div class="success-card">
-        <span class="success-icon" aria-hidden="true">✓</span>
-        <p class="kicker">Solicitud enviada</p>
-        <h1>Ya tenemos tu petición.</h1>
-        <p>Contactaremos contigo en <strong>{{ booking.contact }}</strong> para confirmar disponibilidad con {{ booking.activity.school.name }}.</p>
+        <span class="success-icon success-icon--{{ booking.status }}" aria-hidden="true">
+            {% if booking.status == "confirmed" %}✓{% elif booking.status == "cancelled" %}×{% else %}i{% endif %}
+        </span>
+        <p class="kicker">Seguimiento de solicitud</p>
+        {% if booking.status == "confirmed" %}
+            <h1>Reserva confirmada</h1>
+            <p>Tu plaza para <strong>{{ booking.activity.title }}</strong> con {{ booking.activity.school.name }} está confirmada.</p>
+        {% elif booking.status == "cancelled" %}
+            <h1>Solicitud cancelada</h1>
+            <p>La solicitud para <strong>{{ booking.activity.title }}</strong> con {{ booking.activity.school.name }} figura como cancelada.</p>
+        {% elif booking.status == "contacted" %}
+            <h1>Contacto iniciado</h1>
+            <p>{{ booking.activity.school.name }} ha iniciado el contacto sobre tu solicitud para <strong>{{ booking.activity.title }}</strong>.</p>
+        {% else %}
+            <h1>Solicitud pendiente</h1>
+            <p>Hemos recibido tu petición para <strong>{{ booking.activity.title }}</strong>. {{ booking.activity.school.name }} revisará la disponibilidad.</p>
+        {% endif %}
+        <p class="tracking-status tracking-status--{{ booking.status }}">Estado actual: <strong>{{ booking.get_status_display }}</strong></p>
         <div class="success-summary">
+            <div><span>Escuela</span><strong>{{ booking.activity.school.name }}</strong></div>
             <div><span>Actividad</span><strong>{{ booking.activity.title }}</strong></div>
             <div><span>Fecha preferida</span><strong>{{ booking.preferred_date|date:"j \d\e F \d\e Y" }}</strong></div>
             <div><span>Personas</span><strong>{{ booking.participants }}</strong></div>
         </div>
-        <p class="important-note">Tu plaza todavía no está confirmada y no se ha realizado ningún cobro.</p>
+        {% if booking.status == "confirmed" %}
+            <p class="important-note status-note--confirmed">Tu reserva está confirmada para la fecha y el número de personas indicados.</p>
+        {% elif booking.status == "cancelled" %}
+            <p class="important-note status-note--cancelled">Esta solicitud ya no está activa.</p>
+        {% elif booking.status == "contacted" %}
+            <p class="important-note status-note--contacted">Revisa el canal de contacto indicado: {{ booking.contact }}. La plaza seguirá pendiente hasta que aparezca como confirmada.</p>
+        {% else %}
+            <p class="important-note">Tu plaza todavía no está confirmada y no se ha realizado ningún cobro.</p>
+        {% endif %}
         <a class="button button-dark" href="{% url 'marketplace:activity_list' %}">Ver más actividades</a>
     </div>
 </section>

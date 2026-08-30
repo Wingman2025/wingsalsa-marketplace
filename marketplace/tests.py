@@ -1,8 +1,10 @@
 from datetime import date, timedelta
+from io import StringIO
 from tempfile import TemporaryDirectory
 
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.staticfiles import finders
 from django.test import TestCase, override_settings
@@ -10,6 +12,19 @@ from django.urls import reverse
 
 from .admin import BookingRequestAdmin
 from .models import Activity, BookingRequest, School, Sport
+
+
+class SeedDemoTests(TestCase):
+    def test_seed_demo_preserves_management_changes(self):
+        call_command("seed_demo", stdout=StringIO())
+        activity = Activity.objects.get(slug="iniciacion-wingfoil")
+        activity.is_active = False
+        activity.save(update_fields=["is_active"])
+
+        call_command("seed_demo", stdout=StringIO())
+
+        activity.refresh_from_db()
+        self.assertFalse(activity.is_active)
 
 
 class MarketplaceTests(TestCase):
@@ -477,6 +492,7 @@ class ManagementWorkflowTests(TestCase):
             self.assertRedirects(response, reverse("marketplace:manage_activity_list"))
             self.assertTrue(activity.image.name.startswith("activities/wingfoil"))
             self.assertContains(self.client.get(reverse("marketplace:home")), activity.image.url)
+            self.assertContains(self.client.get(activity.get_absolute_url()), activity.image.url)
             with override_settings(DEBUG=False):
                 image_response = self.client.get(activity.image.url)
                 self.assertEqual(image_response.status_code, 200)

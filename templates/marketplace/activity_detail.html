@@ -7,10 +7,11 @@
     <div class="detail-main">
         <a class="back-link" href="{% url 'marketplace:activity_list' %}">← Volver a actividades</a>
         <div class="detail-visual {% if activity.sport.slug == 'wingfoil' or activity.sport.slug == 'kitesurf' or activity.sport.slug == 'yoga' or activity.sport.slug == 'volley' %}sport-{{ activity.sport.slug }}{% else %}sport-other{% endif %}">
+            {% if activity.image %}<img src="{{ activity.image.url }}" alt="">{% endif %}
             <span>{{ activity.sport.name }}</span>
-            <span class="detail-symbol" aria-hidden="true">
+            {% if not activity.image %}<span class="detail-symbol" aria-hidden="true">
                 {% if activity.sport.slug == 'wingfoil' %}≈{% elif activity.sport.slug == 'kitesurf' %}↗{% elif activity.sport.slug == 'yoga' %}○{% elif activity.sport.slug == 'volley' %}●{% else %}+{% endif %}
-            </span>
+            </span>{% endif %}
         </div>
         <p class="eyebrow">{{ activity.school.name }} · {{ activity.location }}</p>
         <h1>{{ activity.title }}</h1>

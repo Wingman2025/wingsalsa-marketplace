@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Crea escuelas y actividades de demostración para el MVP local."
 
     def handle(self, *args, **options):
-        wingsalsa, _ = School.objects.update_or_create(
+        wingsalsa, _ = School.objects.get_or_create(
             slug="wingsalsa",
             defaults={
                 "name": "WingSalsa",
@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 "is_active": True,
             },
         )
-        tarifa_flow, _ = School.objects.update_or_create(
+        tarifa_flow, _ = School.objects.get_or_create(
             slug="tarifa-flow",
             defaults={
                 "name": "Tarifa Flow",
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 "is_active": True,
             },
         )
-        beach_club, _ = School.objects.update_or_create(
+        beach_club, _ = School.objects.get_or_create(
             slug="sur-beach-club",
             defaults={
                 "name": "Sur Beach Club",
@@ -43,7 +43,7 @@ class Command(BaseCommand):
             ("volley", "Vóley"),
             ("other", "Otro"),
         ):
-            sports[slug], _ = Sport.objects.update_or_create(
+            sports[slug], _ = Sport.objects.get_or_create(
                 slug=slug,
                 defaults={"name": name, "is_active": True},
             )
@@ -117,7 +117,7 @@ class Command(BaseCommand):
 
         for data in activities:
             slug = data.pop("slug")
-            Activity.objects.update_or_create(slug=slug, defaults=data)
+            Activity.objects.get_or_create(slug=slug, defaults=data)
 
         self.stdout.write(self.style.SUCCESS("Datos de demostración preparados."))
 

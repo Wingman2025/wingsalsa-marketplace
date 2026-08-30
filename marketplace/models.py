@@ -52,7 +52,13 @@ class Activity(models.Model):
     slug = models.SlugField(unique=True)
     summary = models.CharField("resumen", max_length=220)
     description = models.TextField("descripción")
-    price = models.DecimalField("precio orientativo", max_digits=8, decimal_places=2)
+    price = models.DecimalField(
+        "precio orientativo",
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
     duration_minutes = models.PositiveIntegerField("duración en minutos", default=60)
     level = models.CharField("nivel", max_length=100, default="Todos los niveles")
     equipment_included = models.BooleanField("material incluido", default=False)

@@ -35,6 +35,8 @@ class MarketplaceTests(TestCase):
         catalog = self.client.get(reverse("marketplace:activity_list"))
         self.assertContains(home, self.activity.title)
         self.assertContains(catalog, self.activity.title)
+        self.assertNotContains(home, "Desde 90 €")
+        self.assertContains(catalog, "Desde 90 €")
 
     def test_health_checks_database(self):
         response = self.client.get(reverse("marketplace:health"))
@@ -381,6 +383,29 @@ class ManagementWorkflowTests(TestCase):
         activity = Activity.objects.get(title="Windsurf desde cero")
         self.assertRedirects(activity_response, reverse("marketplace:manage_activity_list"))
         self.assertEqual(activity.sport, windsurf)
+
+    def test_staff_can_create_activity_without_price(self):
+        response = self.client.post(
+            reverse("marketplace:manage_activity_create"),
+            {
+                "school": self.school.pk,
+                "title": "Actividad sin precio",
+                "sport": self.wingfoil.pk,
+                "summary": "Precio pendiente de confirmar.",
+                "description": "Actividad disponible bajo consulta.",
+                "price": "",
+                "duration_minutes": 60,
+                "level": "Todos los niveles",
+                "equipment_included": False,
+                "equipment_details": "",
+                "location": "Tarifa",
+                "is_featured": False,
+                "is_active": True,
+            },
+        )
+        activity = Activity.objects.get(title="Actividad sin precio")
+        self.assertRedirects(response, reverse("marketplace:manage_activity_list"))
+        self.assertIsNone(activity.price)
 
     def test_editing_activity_preserves_slug_and_can_hide_it(self):
         response = self.client.post(

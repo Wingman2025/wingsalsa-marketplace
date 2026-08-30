@@ -1,0 +1,26 @@
+{
+  "name": "Wingsalsa MarketPlace",
+  "short_name": "Wingsalsa",
+  "description": "Actividades deportivas y solicitudes de reserva en Tarifa.",
+  "lang": "es",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f4ec",
+  "theme_color": "#17211f",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

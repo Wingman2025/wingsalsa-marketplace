@@ -144,6 +144,9 @@ textarea { resize: vertical; }
 .result-count { margin-bottom: 18px; color: var(--muted); font-size: 14px; }
 .empty-state { padding: 70px 30px; border: 1px solid var(--line); border-radius: 24px; text-align: center; background: var(--paper); }
 .empty-state.compact { max-width: 620px; margin: 30px auto; }
+.offline-state { width: min(680px, calc(100% - 40px)); margin: 60px auto 100px; }
+.offline-state h1 { margin-bottom: 12px; font-size: clamp(40px, 6vw, 64px); line-height: 1; }
+.offline-state p:not(.kicker) { color: var(--muted); }
 
 .detail-layout { padding: 54px 0 110px; display: grid; grid-template-columns: minmax(0, 1fr) 370px; gap: 50px; align-items: start; }
 .back-link { display: inline-block; margin-bottom: 24px; color: var(--muted); text-decoration: none; font-weight: 600; }

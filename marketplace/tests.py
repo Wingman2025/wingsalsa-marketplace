@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 from django.contrib.admin.sites import site
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.staticfiles import finders
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -62,6 +63,23 @@ class MarketplaceTests(TestCase):
         response = self.client.get(reverse("marketplace:health"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+    def test_public_pages_expose_installable_pwa(self):
+        home = self.client.get(reverse("marketplace:home"))
+        service_worker = self.client.get(reverse("marketplace:service_worker"))
+        manifest_path = finders.find("manifest.webmanifest")
+
+        self.assertContains(home, 'rel="manifest"')
+        self.assertIsNotNone(manifest_path)
+        with open(manifest_path, encoding="utf-8") as manifest:
+            self.assertIn('"display": "standalone"', manifest.read())
+        self.assertEqual(service_worker.status_code, 200)
+        self.assertEqual(service_worker["Service-Worker-Allowed"], "/")
+        self.assertEqual(service_worker["Cache-Control"], "no-cache")
+        self.assertContains(service_worker, 'url.pathname.startsWith("/health/")')
+        self.assertContains(service_worker, 'url.pathname.startsWith("/gestion/")')
+        self.assertContains(service_worker, 'url.pathname.startsWith("/solicitud/")')
+        self.assertContains(service_worker, "if (response.ok)", count=2)
 
     def test_home_prioritizes_wingsalsa_activities(self):
         other_school = School.objects.create(name="Otra escuela", slug="otra")

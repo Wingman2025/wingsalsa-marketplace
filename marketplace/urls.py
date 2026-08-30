@@ -9,6 +9,8 @@ app_name = "marketplace"
 
 urlpatterns = [
     path("health/", views.health, name="health"),
+    path("service-worker.js", views.service_worker, name="service_worker"),
+    path("offline/", views.offline, name="offline"),
     path(
         "gestion/acceso/",
         auth_views.LoginView.as_view(
